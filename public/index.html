@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cà Mau AI Tour - Standard UI</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            /* Font chữ hiện đại: Kết hợp sự mềm mại của Jakarta và nét Tech của Space Grotesk */
+            @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+            html {
+                font-size: 104%;
+            }
+
+            body {
+                font-family: "Plus Jakarta Sans", sans-serif;
+                background-color: #f8fafc; /* Nền xám xanh cực nhạt, sang trọng */
+                color: #0f172a;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            .font-space {
+                font-family: "Space Grotesk", sans-serif;
+            }
+
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
+            /* Animation cho Typing Indicator */
+            .typing-indicator span {
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                background-color: currentColor;
+                border-radius: 50%;
+                animation: bounce 1.5s infinite ease-in-out;
+                opacity: 0.7;
+            }
+            .typing-indicator span:nth-child(1) {
+                animation-delay: 0s;
+            }
+            .typing-indicator span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+            .typing-indicator span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+            @keyframes bounce {
+                0%,
+                80%,
+                100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-5px);
+                }
+            }
+
+            /* --- CÁC HIỆU ỨNG TINH TẾ (SUBTLE HOVERS) --- */
+            .fade-transition {
+                transition: opacity 0.4s ease;
+            }
+
+            /* Hiệu ứng rê chuột chung cho nút bấm: êm ái, trượt nhẹ 1px */
+            .hover-subtle {
+                transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            }
+            .hover-subtle:hover {
+                transform: translateY(-1px);
+                box-shadow:
+                    0 6px 15px -3px rgba(0, 0, 0, 0.08),
+                    0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            }
+
+            /* Định dạng Nút Chính (Primary) */
+            .btn-primary {
+                background-color: #0f172a;
+                color: #ffffff;
+                border: 1px solid #0f172a;
+            }
+            .btn-primary:hover {
+                background-color: #1e293b;
+                border-color: #1e293b;
+            }
+
+            /* Định dạng Nút Phụ (Secondary) */
+            .btn-secondary {
+                background-color: #ffffff;
+                color: #475569;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            }
+            .btn-secondary:hover {
+                color: #0f172a;
+                border-color: #cbd5e1;
+            }
+
+            /* Nút Sponsor đặc biệt */
+            .btn-sponsor {
+                background-color: #fefce8; /* Vàng cực nhạt */
+                color: #ca8a04;
+                border: 1px solid #fef08a;
+            }
+            .btn-sponsor:hover {
+                background-color: #fef08a;
+                color: #a16207;
+            }
+
+            /* Bong bóng chat */
+            .chat-bubble-ai {
+                background-color: #ffffff;
+                border: 1px solid #e2e8f0;
+                color: #334155;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            }
+            .chat-bubble-user {
+                background-color: #0f172a;
+                color: #ffffff;
+                box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
+            }
+
+            /* Hình nền mờ phía sau tinh tế */
+            #bg-slider {
+                opacity: 0.15;
+                filter: blur(2px) grayscale(40%);
+            }
+        </style>
+    </head>
+    <body class="h-screen w-screen flex flex-col overflow-hidden">
+        <!-- HEADER: Sạch sẽ, bóng đổ cực nhẹ -->
+        <header
+            class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 py-3 px-5 z-50 flex-none shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+        >
+            <div
+                class="max-w-[1600px] w-full mx-auto flex justify-between items-center gap-4"
+            >
+                <h1
+                    class="text-xl md:text-2xl font-bold flex items-center gap-2 text-slate-900 tracking-tight font-space"
+                >
+                    <span class="text-[1.2em]">🌿</span>
+                    <span data-i18n="headerTitle">Cà Mau AI Explorer</span>
+                </h1>
+
+                <!-- KHU VỰC NAV: Nút Thông tin & Nút Sponsor (Phục hồi) -->
+                <nav class="flex items-center gap-3">
+                    <button
+                        id="info-btn"
+                        class="btn-secondary hover-subtle flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <span class="hidden sm:inline" data-i18n="btnInfo"
+                            >Thông tin</span
+                        >
+                    </button>
+
+                    <a
+                        href="#"
+                        class="btn-sponsor hover-subtle flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                            />
+                        </svg>
+                        <span class="hidden sm:inline" data-i18n="btnSponsor"
+                            >Nhà Tài Trợ</span
+                        >
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <main
+            class="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 gap-6 flex flex-col lg:flex-row overflow-hidden min-h-0 relative z-10"
+        >
+            <!-- SIDEBAR: Gọn gàng, viền thanh mảnh -->
+            <aside
+                class="bg-white border border-slate-200 lg:w-[320px] xl:w-[360px] flex-none hidden lg:flex flex-col rounded-xl overflow-hidden relative min-h-0 shadow-sm"
+            >
+                <div
+                    class="absolute top-3 right-3 text-[10px] px-2.5 py-1 uppercase font-bold tracking-wider z-10 bg-white/90 text-slate-800 rounded-md backdrop-blur shadow-sm"
+                    data-i18n="adTag"
+                >
+                    Tài trợ
+                </div>
+
+                <div
+                    class="h-48 xl:h-56 w-full relative overflow-hidden bg-slate-100 flex items-center justify-center flex-none group"
+                >
+                    <img
+                        id="ad-img"
+                        src="resource/tuyensinh.jpg"
+                        alt="Quảng cáo"
+                        class="w-full h-full object-cover fade-transition"
+                    />
+                    <!-- Lớp phủ tối gradient nhẹ để chữ dễ đọc -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent z-0"
+                    ></div>
+                    <h3
+                        id="ad-title"
+                        class="absolute bottom-4 left-4 right-4 text-xl font-bold text-white leading-tight z-10 fade-transition font-space"
+                    >
+                        Trường CĐ CĐ Cà Mau
+                    </h3>
+
+                    <!-- Nút lướt ảnh (Hover mượt) -->
+                    <button
+                        id="ad-prev"
+                        class="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur opacity-0 group-hover:opacity-100 z-20 transition-all duration-300"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </button>
+                    <button
+                        id="ad-next"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur opacity-0 group-hover:opacity-100 z-20 transition-all duration-300"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-5 flex flex-col flex-1 bg-white min-h-0">
+                    <div class="flex-1 overflow-y-auto pr-2 mb-4">
+                        <p
+                            id="ad-desc"
+                            class="text-slate-600 text-sm leading-relaxed fade-transition"
+                        >
+                            Tuyển sinh 2026. Môi trường học tập năng động, học
+                            phí hợp lý, cam kết giới thiệu việc làm sau tốt
+                            nghiệp cho sinh viên.
+                        </p>
+                    </div>
+
+                    <button
+                        id="ad-btn"
+                        class="btn-primary hover-subtle w-full px-4 py-3 text-base font-bold rounded-lg flex justify-center items-center gap-2 fade-transition flex-none"
+                    >
+                        Xem Tuyển Sinh
+                    </button>
+
+                    <div
+                        class="flex justify-center gap-2 mt-5 flex-none cursor-pointer"
+                        id="ad-indicators"
+                    ></div>
+                </div>
+            </aside>
+
+            <!-- KHU VỰC CHAT -->
+            <section
+                class="bg-white border border-slate-200 flex-1 rounded-xl shadow-sm overflow-hidden flex flex-col relative h-full min-h-0"
+            >
+                <div
+                    class="bg-white border-b border-slate-100 px-5 py-3 flex items-center justify-between z-20 flex-none flex-wrap gap-3"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div
+                                class="w-10 h-10 flex items-center justify-center text-lg bg-teal-50 text-teal-700 border border-teal-100 rounded-full"
+                            >
+                                🤖
+                            </div>
+                            <div
+                                class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
+                            ></div>
+                        </div>
+                        <div>
+                            <h2
+                                data-i18n="aiTitle"
+                                class="font-bold text-slate-900 text-base font-space"
+                            >
+                                Trợ Lý AI Đất Mũi
+                            </h2>
+                            <p
+                                data-i18n="aiStatus"
+                                class="text-xs text-teal-600 font-semibold"
+                            >
+                                Đang online
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button
+                            id="lang-btn"
+                            class="btn-secondary hover-subtle flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg"
+                            title="Change language"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4 text-slate-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <span class="hidden sm:inline" data-i18n="langText"
+                                >Ngôn ngữ</span
+                            >
+                            <span class="sm:hidden" id="lang-short">VI/EN</span>
+                        </button>
+                        <button
+                            id="reset-btn"
+                            class="btn-secondary hover-subtle flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg text-red-500 hover:text-red-600"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                />
+                            </svg>
+                            <span class="hidden md:inline" data-i18n="btnReset"
+                                >Làm mới</span
+                            >
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Khu vực nội dung Chat có ảnh mờ -->
+                <div
+                    class="relative flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-50/50"
+                >
+                    <div
+                        id="bg-slider"
+                        class="absolute inset-0 z-0 bg-cover bg-center transition-all duration-1000 ease-in-out"
+                        style="
+                            background-image: url(&quot;resource/muicamau1.jpg&quot;);
+                        "
+                    ></div>
+                    <div
+                        id="chat-box"
+                        class="relative z-10 flex-1 p-5 overflow-y-auto space-y-6 scroll-smooth"
+                    ></div>
+                </div>
+
+                <div
+                    class="p-4 bg-white border-t border-slate-100 z-20 flex-none"
+                >
+                    <form
+                        id="chat-form"
+                        class="flex gap-3 max-w-4xl mx-auto relative"
+                    >
+                        <input
+                            type="text"
+                            id="user-input"
+                            class="flex-1 bg-slate-50 border border-slate-200 pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 text-slate-900 text-base rounded-xl transition-all"
+                            autocomplete="off"
+                            required
+                        />
+                        <button
+                            type="submit"
+                            class="btn-primary hover-subtle absolute right-1.5 top-1.5 bottom-1.5 w-12 flex items-center justify-center rounded-lg"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 transform rotate-90"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                                />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER: Sạch sẽ, chữ dễ nhìn -->
+        <footer
+            class="bg-white border-t border-slate-200 py-8 px-5 z-50 relative mt-auto"
+        >
+            <div
+                class="max-w-[1600px] w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm relative z-10"
+            >
+                <div>
+                    <h4
+                        class="text-slate-900 font-bold mb-3 flex items-center gap-2 font-space"
+                    >
+                        <span class="text-base">🌿</span>
+                        <span data-i18n="ftTitle1">Cà Mau AI Explorer</span>
+                    </h4>
+                    <p
+                        class="leading-relaxed text-slate-500 text-justify"
+                        data-i18n="ftDesc1"
+                    >
+                        Dự án công nghệ phi lợi nhuận kết hợp AI và Du lịch. Lan
+                        tỏa tình yêu quê hương qua từng dòng code.
+                    </p>
+                </div>
+                <div>
+                    <h4
+                        class="text-slate-900 font-bold mb-3 font-space"
+                        data-i18n="ftTitle2"
+                    >
+                        Trường CĐ Cộng Đồng Cà Mau
+                    </h4>
+                    <ul class="space-y-2 text-slate-500">
+                        <li>
+                            <a
+                                href="https://caodangcongdong.camau.gov.vn/"
+                                target="_blank"
+                                class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                                >▪
+                                <span data-i18n="ftLink1"
+                                    >Trang chủ CMCC</span
+                                ></a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                href="https://dtcaodangcongdong.camau.gov.vn/"
+                                target="_blank"
+                                class="hover:text-slate-900 transition-colors flex items-center gap-2"
+                                >▪
+                                <span data-i18n="ftLink2"
+                                    >Cổng Đào Tạo Tuyển Sinh</span
+                                ></a
+                            >
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4
+                        class="text-slate-900 font-bold mb-3 font-space"
+                        data-i18n="ftTitle3"
+                    >
+                        Tài Trợ & Quảng Cáo
+                    </h4>
+                    <p
+                        class="leading-relaxed text-slate-500 mb-3"
+                        data-i18n="ftDesc3"
+                    >
+                        Hỗ trợ duy trì máy chủ AI và quảng bá thương hiệu.
+                    </p>
+                    <button
+                        onclick="
+                            openModal();
+                            return false;
+                        "
+                        class="text-slate-900 font-bold underline hover:text-teal-600 transition-colors"
+                        data-i18n="ftLink3"
+                    >
+                        Xem Liên hệ
+                    </button>
+                </div>
+            </div>
+            <div
+                class="max-w-[1600px] w-full mx-auto mt-8 pt-6 border-t border-slate-100 text-center text-slate-400 text-xs relative z-10"
+                data-i18n="ftCopyright"
+            >
+                &copy; 2026 Nguyễn Dư Quí (SV CMCC - Mã SV: CK2402A33).
+            </div>
+        </footer>
+
+        <!-- MODAL THÔNG TIN -->
+        <div
+            id="info-modal"
+            class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4"
+        >
+            <div
+                class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+                id="modal-backdrop"
+            ></div>
+
+            <div
+                class="bg-white rounded-2xl shadow-xl z-10 max-w-md w-full transform scale-95 transition-all duration-300 relative flex flex-col max-h-[85vh]"
+                id="modal-content"
+            >
+                <div class="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
+                    <div class="mb-6 border-b border-slate-100 pb-4">
+                        <h3
+                            class="text-2xl font-bold text-slate-900 font-space"
+                            data-i18n="mdTitle"
+                        >
+                            Dự Án Phi Lợi Nhuận
+                        </h3>
+                        <p
+                            class="text-teal-600 font-medium mt-1"
+                            data-i18n="mdSubtitle"
+                        >
+                            Cà Mau AI Explorer
+                        </p>
+                    </div>
+
+                    <div
+                        class="space-y-4 text-slate-600 bg-slate-50 p-5 rounded-xl border border-slate-100 text-sm"
+                    >
+                        <p>
+                            <strong class="text-slate-900" data-i18n="mdDev"
+                                >Phát triển:</strong
+                            >
+                            <span data-i18n="mdDevName"
+                                >SV Trường CĐ CĐ Cà Mau</span
+                            >
+                        </p>
+                        <p>
+                            <strong class="text-slate-900" data-i18n="mdID"
+                                >Mã SV:</strong
+                            >
+                            CK2402A33
+                        </p>
+                        <p>
+                            <strong class="text-slate-900">Email:</strong>
+                            <a
+                                href="mailto:nguyenduquicm1@gmail.com"
+                                class="text-teal-600 font-semibold hover:underline"
+                                >nguyenduquicm1@gmail.com</a
+                            >
+                        </p>
+                        <p>
+                            <strong class="text-slate-900" data-i18n="mdPhone"
+                                >Zalo/ĐT:</strong
+                            >
+                            <a
+                                href="tel:0942655776"
+                                class="text-teal-600 font-semibold hover:underline"
+                                >0942655776</a
+                            >
+                        </p>
+                    </div>
+
+                    <p
+                        class="text-slate-500 text-sm mt-6 leading-relaxed text-justify"
+                        data-i18n="mdDesc"
+                    >
+                        Dự án hoàn toàn phi lợi nhuận. Rất mong nhận được sự tài
+                        trợ để duy trì API và máy chủ phục vụ du lịch tỉnh nhà.
+                    </p>
+
+                    <button
+                        id="close-modal-btn"
+                        class="btn-primary hover-subtle w-full mt-8 px-4 py-3 rounded-xl font-bold flex-none"
+                        data-i18n="mdClose"
+                    >
+                        Đóng thông báo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Script -->
+        <script>
+            // ==========================================
+            // 1. DATA ĐA NGÔN NGỮ (i18n) - Clean
+            // ==========================================
+            const i18n = {
+                vi: {
+                    headerTitle: "Cà Mau AI Explorer",
+                    btnInfo: "Thông tin",
+                    btnSponsor: "Nhà Tài Trợ",
+                    adTag: "Tài trợ",
+                    aiTitle: "Trợ Lý AI Đất Mũi",
+                    aiStatus: "Đang online",
+                    langText: "Ngôn ngữ",
+                    btnReset: "Làm mới",
+                    inputPlaceholder: "Hỏi tôi về Cà Mau...",
+                    ftTitle1: "Cà Mau AI Explorer",
+                    ftDesc1:
+                        "Dự án công nghệ phi lợi nhuận kết hợp AI và Du lịch. Lan tỏa tình yêu quê hương qua từng dòng code.",
+                    ftTitle2: "Trường CĐ Cộng Đồng Cà Mau",
+                    ftLink1: "Trang chủ CMCC",
+                    ftLink2: "Cổng Đào Tạo Tuyển Sinh",
+                    ftTitle3: "Tài Trợ & Quảng Cáo",
+                    ftDesc3:
+                        "Hỗ trợ duy trì máy chủ AI và quảng bá thương hiệu.",
+                    ftLink3: "Xem Liên hệ",
+                    ftCopyright:
+                        "&copy; 2026 Nguyễn Dư Quí (SV CMCC - Mã SV: CK2402A33).",
+                    mdTitle: "Dự Án Phi Lợi Nhuận",
+                    mdSubtitle: "Cà Mau AI Explorer",
+                    mdDev: "Phát triển:",
+                    mdDevName: "SV Trường CĐ CĐ Cà Mau",
+                    mdID: "Mã SV:",
+                    mdPhone: "Zalo/ĐT:",
+                    mdDesc: "Dự án hoàn toàn phi lợi nhuận. Rất mong nhận được sự tài trợ để duy trì API và máy chủ phục vụ du lịch tỉnh nhà.",
+                    mdClose: "Đóng thông báo",
+                    chatGreeting:
+                        "Dạ em chào anh/chị ạ! Em là Trợ lý AI Cà Mau. Anh/chị cần hỏi thông tin gì về vùng Đất Mũi không?",
+                    errorConn:
+                        "⚠️ Lỗi kết nối! Bạn hãy kiểm tra xem file app.py đã được chạy chưa nhé.",
+                    errorBusy: "Xin lỗi, máy chủ Python đang bận: ",
+                },
+                en: {
+                    headerTitle: "Ca Mau AI Explorer",
+                    btnInfo: "About Us",
+                    btnSponsor: "Sponsor Us",
+                    adTag: "Sponsored",
+                    aiTitle: "Ca Mau AI Assistant",
+                    aiStatus: "Online",
+                    langText: "Language",
+                    btnReset: "Reset",
+                    inputPlaceholder: "Ask me about Ca Mau...",
+                    ftTitle1: "Ca Mau AI Explorer",
+                    ftDesc1:
+                        "A non-profit tech project combining AI and Tourism. Spreading love for our hometown through code.",
+                    ftTitle2: "Ca Mau Community College",
+                    ftLink1: "CMCC Homepage",
+                    ftLink2: "Admission Portal",
+                    ftTitle3: "Sponsorship & Ads",
+                    ftDesc3:
+                        "Support our AI server maintenance and promote your brand.",
+                    ftLink3: "Contact Us",
+                    ftCopyright:
+                        "&copy; 2026 Nguyen Du Qui (CMCC Student - ID: CK2402A33).",
+                    mdTitle: "Non-profit Project",
+                    mdSubtitle: "Ca Mau AI Explorer",
+                    mdDev: "Developer:",
+                    mdDevName: "Ca Mau Community College Student",
+                    mdID: "Student ID:",
+                    mdPhone: "Phone/Zalo:",
+                    mdDesc: "This is a 100% non-profit project. We welcome sponsorships to maintain the API and servers serving local tourism.",
+                    mdClose: "Close",
+                    chatGreeting:
+                        "Hello! I'm your Ca Mau AI Assistant. Do you have any questions about your trip to Mui Ca Mau?",
+                    errorConn:
+                        "⚠️ Connection error! Please make sure app.py is running.",
+                    errorBusy: "Sorry, the Python server is busy: ",
+                },
+            };
+
+            let currentLang = "vi";
+
+            function updateGlobalLanguage() {
+                document.querySelectorAll("[data-i18n]").forEach((el) => {
+                    const key = el.getAttribute("data-i18n");
+                    if (i18n[currentLang][key]) {
+                        el.innerHTML = i18n[currentLang][key];
+                    }
+                });
+                document.getElementById("user-input").placeholder =
+                    i18n[currentLang].inputPlaceholder;
+                renderCurrentAd(false);
+            }
+
+            // ==========================================
+            // 2. MODAL LOGIC
+            // ==========================================
+            const infoBtn = document.getElementById("info-btn");
+            const infoModal = document.getElementById("info-modal");
+            const closeModalBtn = document.getElementById("close-modal-btn");
+            const modalBackdrop = document.getElementById("modal-backdrop");
+            const modalContent = document.getElementById("modal-content");
+
+            function openModal() {
+                infoModal.classList.remove("hidden");
+                setTimeout(() => {
+                    infoModal.classList.remove("opacity-0");
+                    modalContent.classList.remove("scale-95");
+                    modalContent.classList.add("scale-100");
+                }, 10);
+            }
+
+            function closeModal() {
+                infoModal.classList.add("opacity-0");
+                modalContent.classList.remove("scale-100");
+                modalContent.classList.add("scale-95");
+                setTimeout(() => {
+                    infoModal.classList.add("hidden");
+                }, 300);
+            }
+
+            if (infoBtn) infoBtn.addEventListener("click", openModal);
+            if (closeModalBtn)
+                closeModalBtn.addEventListener("click", closeModal);
+            if (modalBackdrop)
+                modalBackdrop.addEventListener("click", closeModal);
+
+            // ==========================================
+            // 3. ADS LOGIC
+            // ==========================================
+            const adsData = [
+                {
+                    img: "resource/tuyensinh.jpg",
+                    vi: {
+                        title: "Trường CĐ Cộng Đồng",
+                        desc: "Tuyển sinh 2026. Môi trường năng động, học phí hợp lý, giới thiệu việc làm.",
+                        btnText: "Xem Tuyển Sinh",
+                    },
+                    en: {
+                        title: "Community College",
+                        desc: "2026 Admissions. Dynamic environment, reasonable tuition, job placement support.",
+                        btnText: "View Admissions",
+                    },
+                    link: "https://caodangcongdong.camau.gov.vn/",
+                },
+                {
+                    img: "resource/mup.jpg",
+                    vi: {
+                        title: "#Múp Food & Drink",
+                        desc: "Không gian siêu chill, đồ uống cực đã. Thưởng thức hương vị tuyệt vời tại trung tâm Cà Mau.",
+                        btnText: "Nhận Ưu Đãi",
+                    },
+                    en: {
+                        title: "#Múp Food & Drink",
+                        desc: "Super chill space, amazing drinks. Enjoy great flavors in the center of Ca Mau.",
+                        btnText: "Get Discount",
+                    },
+                    link: "#",
+                },
+            ];
+
+            let currentAdIndex = 0;
+            let adTimer;
+            const adImg = document.getElementById("ad-img");
+            const adTitle = document.getElementById("ad-title");
+            const adDesc = document.getElementById("ad-desc");
+            const adBtn = document.getElementById("ad-btn");
+            const adIndicators = document.getElementById("ad-indicators");
+
+            adsData.forEach((_, index) => {
+                const dot = document.createElement("div");
+                dot.className = `w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${index === 0 ? "bg-slate-800 w-4" : "bg-slate-300"}`;
+                dot.addEventListener("click", () => changeAd(index));
+                adIndicators.appendChild(dot);
+            });
+
+            adBtn.addEventListener("click", () => {
+                const currentLink = adsData[currentAdIndex].link;
+                if (currentLink !== "#") window.open(currentLink, "_blank");
+                else openModal();
+            });
+
+            function renderCurrentAd(animate = true) {
+                const data = adsData[currentAdIndex];
+                const langData = data[currentLang];
+
+                if (animate) {
+                    [adImg, adTitle, adDesc, adBtn].forEach(
+                        (el) => (el.style.opacity = 0),
+                    );
+                    setTimeout(() => applyAdData(data, langData), 300);
+                } else {
+                    applyAdData(data, langData);
+                }
+            }
+
+            function applyAdData(data, langData) {
+                adImg.src = data.img;
+                adTitle.innerText = langData.title;
+                adDesc.innerText = langData.desc;
+                adBtn.innerText = langData.btnText;
+
+                Array.from(adIndicators.children).forEach((dot, i) => {
+                    dot.className = `w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${i === currentAdIndex ? "bg-slate-800 w-4" : "bg-slate-300"}`;
+                });
+
+                [adImg, adTitle, adDesc, adBtn].forEach(
+                    (el) => (el.style.opacity = 1),
+                );
+            }
+
+            function changeAd(directionOrIndex) {
+                if (typeof directionOrIndex === "number") {
+                    currentAdIndex = directionOrIndex;
+                } else if (directionOrIndex === "next") {
+                    currentAdIndex = (currentAdIndex + 1) % adsData.length;
+                } else if (directionOrIndex === "prev") {
+                    currentAdIndex =
+                        (currentAdIndex - 1 + adsData.length) % adsData.length;
+                }
+
+                renderCurrentAd();
+                resetAdTimer();
+            }
+
+            function resetAdTimer() {
+                clearInterval(adTimer);
+                adTimer = setInterval(() => changeAd("next"), 6000);
+            }
+
+            document
+                .getElementById("ad-prev")
+                .addEventListener("click", () => changeAd("prev"));
+            document
+                .getElementById("ad-next")
+                .addEventListener("click", () => changeAd("next"));
+            resetAdTimer();
+
+            // ==========================================
+            // 4. BG SLIDER LOGIC
+            // ==========================================
+            const sceneryImages = [
+                "resource/muicamau1.jpg",
+                "resource/muicamau2.jpg",
+                "resource/muicamau3.jpg",
+            ];
+            let currentSceneryIndex = 0;
+            const bgSlider = document.getElementById("bg-slider");
+            setInterval(() => {
+                currentSceneryIndex =
+                    (currentSceneryIndex + 1) % sceneryImages.length;
+                bgSlider.style.backgroundImage = `url('${sceneryImages[currentSceneryIndex]}')`;
+            }, 7000);
+
+            // ==========================================
+            // 5. CHAT LOGIC
+            // ==========================================
+            const chatForm = document.getElementById("chat-form");
+            const userInput = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const langBtn = document.getElementById("lang-btn");
+            const resetBtn = document.getElementById("reset-btn");
+
+            function initChat() {
+                chatBox.innerHTML = "";
+                appendMessage("ai", i18n[currentLang].chatGreeting);
+            }
+
+            langBtn.addEventListener("click", () => {
+                currentLang = currentLang === "vi" ? "en" : "vi";
+                updateGlobalLanguage();
+                initChat();
+            });
+
+            resetBtn.addEventListener("click", initChat);
+
+            function appendMessage(sender, text) {
+                const isUser = sender === "user";
+                const formattedText = text
+                    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                    .replace(/\n/g, "<br>");
+
+                const messageDiv = document.createElement("div");
+                messageDiv.className = `flex gap-4 ${isUser ? "flex-row-reverse" : ""} animate-[fadeIn_0.3s_ease-out]`;
+
+                messageDiv.innerHTML = `
+                <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center text-sm font-bold rounded-full ${isUser ? "bg-slate-200 text-slate-800" : "bg-teal-50 text-teal-700 border border-teal-100"}">
+                    ${isUser ? "U" : "🤖"}
+                </div>
+                <div class="px-5 py-3.5 rounded-2xl text-base leading-relaxed ${isUser ? "chat-bubble-user rounded-tr-sm" : "chat-bubble-ai rounded-tl-sm"}">
+                    ${formattedText}
+                </div>
+            `;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                const indicatorDiv = document.createElement("div");
+                indicatorDiv.id = "typing-indicator";
+                indicatorDiv.className =
+                    "flex gap-4 animate-[fadeIn_0.3s_ease-out]";
+                indicatorDiv.innerHTML = `
+                <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center text-sm font-bold rounded-full bg-teal-50 text-teal-700 border border-teal-100">🤖</div>
+                <div class="chat-bubble-ai px-5 py-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+                chatBox.appendChild(indicatorDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function hideTypingIndicator() {
+                const indicator = document.getElementById("typing-indicator");
+                if (indicator) indicator.remove();
+            }
+
+            chatForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                appendMessage("user", message);
+                userInput.value = "";
+                showTypingIndicator();
+
+                try {
+                    const response = await fetch(
+                        "http://localhost:5000/api/chat",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                message: message,
+                                language: currentLang,
+                            }),
+                        },
+                    );
+
+                    const data = await response.json();
+                    hideTypingIndicator();
+
+                    if (response.ok) {
+                        appendMessage("ai", data.reply);
+                    } else {
+                        appendMessage(
+                            "ai",
+                            i18n[currentLang].errorBusy + data.error,
+                        );
+                    }
+                } catch (error) {
+                    hideTypingIndicator();
+                    appendMessage("ai", i18n[currentLang].errorConn);
+                }
+            });
+
+            // Khởi động
+            updateGlobalLanguage();
+            initChat();
+        </script>
+    </body>
+</html>
